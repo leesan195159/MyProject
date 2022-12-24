@@ -11,6 +11,7 @@ from django.conf       import settings
 from cores.validations import validate_email, validate_password
 from users.models      import User
 
+
 class SignIn(View):
     def post(self, request):
         try:
@@ -28,16 +29,15 @@ class SignIn(View):
             User.objects.create(
                 name     = name,
                 email    = email,
-                password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode(('utf-8'))
             )
+            return JsonResponse({'message': 'Success'}, status=201)
 
-            return JsonResponse({
-                'message': 'Success'
-            })
         except KeyError:
             return JsonResponse({'message': 'Key_Error'}, status=401)
         except ValidationError:
             return JsonResponse({'message': 'Validation_Error'}, status=403)
+
 
 class LogIn(View):
     def post(self, request):
@@ -50,16 +50,14 @@ class LogIn(View):
             validate_email(email)
             validate_password(password)
 
-            if User.objects.filter(email=email, password=password).exists():
-                token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(days=1)},
-                                settings.SECRET_KEY,
-                                settings.ALGORITHM)
-                return JsonResponse({
-                    'message': 'Success',
-                    'token': token
-                })
-            else:
-                return JsonResponse({'message': 'Login_Error'}, status=406)
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                return JsonResponse({'message': 'Invalid_Password'}, status=401)
+
+            token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(days=1)},
+                             settings.SECRET_KEY,
+                             settings.ALGORITHM)
+            return JsonResponse({'message': 'Success', 'token': token}, status=200)
+
         except KeyError:
             return JsonResponse({'message': 'Key_Error'}, status=401)
         except ValidationError:
