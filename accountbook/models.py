@@ -3,6 +3,7 @@ from django.db import models
 from cores.timestamp import TimestampZone
 from users.models import User
 
+
 class AccountBook(TimestampZone):
     user          = models.ForeignKey(User, related_name='users', on_delete=models.CASCADE)
     amount        = models.IntegerField()

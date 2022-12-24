@@ -92,5 +92,22 @@ class DeleteAccountBook(View):
             return JsonResponse({'message': 'Value_Error'}, status=408)
 
 
+class AmountDetailUrl(View):
+    @login_authorization
+    def patch(self, request, accountbook_id):
+        user = request.user
+        accountbook = AccountBook.objects.get(id=accountbook_id, user_id=user.id)
+
+        if AccountBook.objects.filter(id=accountbook_id).exists():
+            accountbook.url = accountbook.amount_detail
+            accountbook.save()
+            return JsonResponse({'message'       : 'Changed',
+                                 'accountbook_id': accountbook.id,
+                                 'user_id'       : accountbook.user_id,
+                                 'amount'        : accountbook.amount,
+                                 'amount_detail' : accountbook.amount_detail,
+                                 'note_content'  : accountbook.note_content
+                                 }, status=200)
+        return JsonResponse({'message': 'Does_Not_Exist'}, status=411)
 
 
