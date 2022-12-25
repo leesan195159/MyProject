@@ -35,15 +35,14 @@ class PostAccountBook(View):
 
 class GetAccountBook(View):
     @login_authorization
-    def get(self, request):
-        user         = request.user
-        accountbooks = AccountBook.objects.filter(user_id=user.id)
+    def get(self, request, user_id):
+        accountbooks = AccountBook.objects.filter(user_id=user_id)
 
         if not accountbooks.exists():
             return JsonResponse({'message': 'Invalid_User'}, status=410)
 
         result = [{
-            'userId'       : user.id,
+            'userId'       : user_id,
             'accountbookId': accountbook.id,
             'amount'       : accountbook.amount,
             'amount_detail': accountbook.amount_detail,
