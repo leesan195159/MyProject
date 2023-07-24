@@ -21,6 +21,8 @@ class PostAccountBook(View):
             AccountBook.objects.create(
                 user_id       = user.id,
                 amount        = amount,
+
+                
                 amount_detail = amount_detail,
                 note_content  = note_content,
                 url           = url
